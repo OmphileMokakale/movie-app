@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+  <title>Vite App</title>
+</head>
+
+<body>
+  <div x-data="favMovies">
+
+    <section class="container">
+      <section class="container-inside">
+        <div class="left-side">
+          <img src="img/pexels-pixabay-274937.jpg" class="left-img" title="sign up now and save 1200$">
+        </div>
+        <div class="right-side">
+
+          <div class="buttons-container">
+            <button type="button" class="sign-up">Sign Up</button>
+            <button type="button" class="sign-in">Sign In</button>
+          </div>
+
+          <!-- Sign up Form -->
+          <form class="inputs-cont">
+            <label class="input-label hidden">First Name </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your First Name" required x-model="firstName" />
+
+            <label class="input-label hidden">Last Name </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your Last Name" x-model="lastName" />
+
+            <label class="input-label hidden">Username </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your Username" x-model="username" />
+
+            <label class="input-label">Password</label>
+            <i class="fas fa-lock"></i>
+            <input type="password" class="input-take" placeholder="* * * * * * * *" required maxlength="12"
+              x-model="password" />
+           
+            <!-- button -->
+            <button class="send" @click="handleRegister()">Register</button>
+          </form>
+
+          <!-- Login Form -->
+          <form class="inputs-cont2">
+            <label class="input-label hidden">Username </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your Username" x-model="username" />
+
+            <label class="input-label">Password</label>
+            <i class="fas fa-lock"></i>
+            <input type="password" class="input-take" placeholder="* * * * * * * *" required maxlength="12"
+              x-model="password" />
+        
+            <!-- button -->
+            <button class="send" @click="handleLogin()">Sign In</button>
+          </form>
+
+          <!-- end it fast -->
+        </div>
+      </section>
+    </section>
+
+    <!-- <div class="login" x-show="isLoggedIn">
+      <h2 class="title">Login</h2>
+      <div class="input-field">
+        <i class="fas fa-user"></i>
+        <input type="text" placeholder="Username" x-model="username" />
+      </div>
+      <div class="input-field">
+        <i class="fas fa-lock"></i>
+        <input type="password" placeholder="Password" x-model="password" />
+      </div>
+      <button class="Mdesign AW" @click="handleLogin()">Sign In</button>
+    </div> -->
+
+    <!-- <div class="signup" x-show="isSignedUp">
+      <h2 class="title">Sign up</h2>
+      <div class="input-field">
+        <i class="fas fa-user"></i>
+        <input type="text" placeholder="FirstName" x-model="firstName" />
+      </div>
+      <div class="input-field">
+        <i class="fas fa-user"></i>
+        <input type="text" placeholder="LastName" x-model="lastName" />
+      </div>
+      <div class="input-field">
+        <i class="fas fa-user"></i>
+        <input type="text" placeholder="Username" x-model="username" />
+      </div>
+      <div class="input-field">
+        <i class="fas fa-lock"></i>
+        <input type="password" placeholder="Password" x-model="password" />
+      </div>
+      <button class="Mdesign AW" @click="handleRegister()">Register</button>
+    </div> -->
+
+    <nav class="navbar navbar-dark bg-dark">
+      <!-- input component for searching movies -->
+      <div class="input-group">
+        <div class="form-outline">
+          <input type="search" id="form1" class="form-control" x-model="searchQuery" /> <!-- Input for movie search-->
+          <!-- <label class="form-label" for="form1"><i class="fas fa-search"></i></label> -->
+        </div>
+        <button class="btn btn-outline-info my-2 my-sm-0" @click="onSearch()">Search</button>
+      </div>
+    </nav>
+
+    <!-- Component -->
+    <div class="search-results">
+      <div class="container">
+        <div class="row">
+          <template x-for="results in searchResults">
+            <div class="col">
+              <div class="card" style="width: 18rem;">
+                <img class="card-img-top" :src="`https://image.tmdb.org/t/p/w500${results.poster_path}`"
+                  alt="Card image cap">
+                <div class="card-body">
+                  <p class="card-text" x-text="results.overview"></p>
+                  <button @click="handleAddToPlaylist(results.id, results.title, results.poster_path)"
+                    class="btn success">Add to playlist</button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
