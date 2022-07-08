@@ -21,10 +21,12 @@ const authToken = (req, res, next) => {
       let bearer = header.split(":");
       const { username } = jwt__default["default"].verify(bearer[1], "This-is-my-secret-code#1");
       req.username = username;
+      req.isExpired = false;
       next();
     }
   } catch (error) {
-    console.log(error);
+    req.isExpired = true;
+    next();
   }
 };
 const generateAccessToken = (username) => jwt__default["default"].sign({ username }, "This-is-my-secret-code#1", { expiresIn: "24h" });
@@ -52,20 +54,29 @@ app.post("/api/signup", async (req, res) => {
 });
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
-  console.log(req.body);
   const userHashedPassword = await db.oneOrNone(`select * from movie_user where username = $1`, [username]);
-  console.log(userHashedPassword);
-  bcrypt__default["default"].compare(password, userHashedPassword.password, (err, results) => {
-    if (err)
-      return err;
-    if (results) {
-      res.json({
-        status: "success",
-        isLoggedin: true,
-        user: userHashedPassword
-      });
-    }
-  });
+  if (userHashedPassword) {
+    bcrypt__default["default"].compare(password, userHashedPassword.password, (err, results) => {
+      if (err)
+        return err;
+      if (results) {
+        const token = generateAccessToken(username);
+        res.json({
+          status: "success",
+          isLoggedin: true,
+          user: userHashedPassword,
+          isFound: true,
+          token
+        });
+      }
+    });
+  } else {
+    res.json({
+      status: "failure",
+      isLoggedin: false,
+      isFound: false
+    });
+  }
 });
 app.get("/api/movie/search/:searchQuery", async (req, res) => {
   const { searchQuery } = req.params;
@@ -78,28 +89,29 @@ app.get("/api/movie/search/:searchQuery", async (req, res) => {
 });
 app.get("/api/v1/auth", authToken, async (req, res) => {
   console.log(req.username);
+  console.log(req.isExpired);
   const verifyUser = await db.one("select * from movie_user where username = $1", [req.username]);
-  if (verifyUser) {
-    res.json({
-      status: "success",
-      user: verifyUser,
-      isUser: true
-    });
-  }
   res.json({
-    status: "failure",
-    isUser: false
+    user: verifyUser,
+    isExpired: req.isExpired
   });
-});
-app.get("/api/play", function(req, res) {
-  res.json({ movies });
 });
 app.post("/api/v1/add", async (req, res) => {
   const { movieId, movieName, moviePosterUrl } = req.body;
-  await db.none("insert into User_Playlist (user_id, movie_id, movie_name, moviePosterUrl) values ($1,$2, $3, $4)", [1, movieId, movieName, moviePosterUrl]);
+  await db.none("insert into User_Playlist (user_id, movie_id, movie_name, moviePosterUrl) values ($1,$2, $3, $4)", [3, movieId, movieName, moviePosterUrl]);
   res.json({
     status: "success",
     isAdded: true
+  });
+});
+app.get("/api/v1/user/playlist", authToken, async (req, res) => {
+  const { id, firstname, lastname, username } = await db.one("select * from movie_user where username = $1", [req.username]);
+  console.log(id);
+  const userPlaylist = await db.many("select User_Playlist.movie_id, User_Playlist.movie_name, User_Playlist.moviePosterUrl, User_Playlist.user_id from User_Playlist inner join movie_user on movie_user.id = User_Playlist.user_id where User_Playlist.user_id = $1", [id]);
+  console.log(userPlaylist);
+  res.json({
+    status: "success",
+    playlist: userPlaylist
   });
 });
 const handler = app;

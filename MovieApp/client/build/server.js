@@ -317,7 +317,166 @@ class Polka extends trouter {
 var polka = (opts) => new Polka(opts);
 const serveIndex = (req, res) => {
   res.setHeader("Content-Type", "text/html");
-  res.end('<!DOCTYPE html>\n<html lang="en">\n\n<head>\n  <meta charset="UTF-8" />\n  <link rel="icon" type="image/svg+xml" href="/movie-app/assets/favicon.17e50649.svg" />\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"\n    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">\n  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"><\/script>\n  <title>Vite App</title>\n  <script type="module" crossorigin src="/movie-app/assets/index.f8cccdfc.js"><\/script>\n  <link rel="stylesheet" href="/movie-app/assets/index.e4d5f3dd.css">\n</head>\n\n<body>\n  <div x-data="favMovies">\n\n    <section class="container">\n      <section class="container-inside">\n        <div class="left-side">\n          <img src="/movie-app/assets/pexels-pixabay-274937.78208d00.jpg" class="left-img" title="sign up now and save 1200$">\n        </div>\n        <div class="right-side">\n\n          <div class="buttons-container">\n            <button type="button" class="sign-up">Sign Up</button>\n            <button type="button" class="sign-in">Sign In</button>\n          </div>\n\n          <!-- Sign up Form -->\n          <form class="inputs-cont">\n            <label class="input-label hidden">First Name </label>\n            <i class="fas fa-user"></i>\n            <input type="text" class="input-take" placeholder="Enter your First Name" required x-model="firstName" />\n\n            <label class="input-label hidden">Last Name </label>\n            <i class="fas fa-user"></i>\n            <input type="text" class="input-take" placeholder="Enter your Last Name" x-model="lastName" />\n\n            <label class="input-label hidden">Username </label>\n            <i class="fas fa-user"></i>\n            <input type="text" class="input-take" placeholder="Enter your Username" x-model="username" />\n\n            <label class="input-label">Password</label>\n            <i class="fas fa-lock"></i>\n            <input type="password" class="input-take" placeholder="* * * * * * * *" required maxlength="12"\n              x-model="password" />\n           \n            <!-- button -->\n            <button class="send" @click="handleRegister()">Register</button>\n          </form>\n\n          <!-- Login Form -->\n          <form class="inputs-cont2">\n            <label class="input-label hidden">Username </label>\n            <i class="fas fa-user"></i>\n            <input type="text" class="input-take" placeholder="Enter your Username" x-model="username" />\n\n            <label class="input-label">Password</label>\n            <i class="fas fa-lock"></i>\n            <input type="password" class="input-take" placeholder="* * * * * * * *" required maxlength="12"\n              x-model="password" />\n        \n            <!-- button -->\n            <button class="send" @click="handleLogin()">Sign In</button>\n          </form>\n\n          <!-- end it fast -->\n        </div>\n      </section>\n    </section>\n\n    <!-- <div class="login" x-show="isLoggedIn">\n      <h2 class="title">Login</h2>\n      <div class="input-field">\n        <i class="fas fa-user"></i>\n        <input type="text" placeholder="Username" x-model="username" />\n      </div>\n      <div class="input-field">\n        <i class="fas fa-lock"></i>\n        <input type="password" placeholder="Password" x-model="password" />\n      </div>\n      <button class="Mdesign AW" @click="handleLogin()">Sign In</button>\n    </div> -->\n\n    <!-- <div class="signup" x-show="isSignedUp">\n      <h2 class="title">Sign up</h2>\n      <div class="input-field">\n        <i class="fas fa-user"></i>\n        <input type="text" placeholder="FirstName" x-model="firstName" />\n      </div>\n      <div class="input-field">\n        <i class="fas fa-user"></i>\n        <input type="text" placeholder="LastName" x-model="lastName" />\n      </div>\n      <div class="input-field">\n        <i class="fas fa-user"></i>\n        <input type="text" placeholder="Username" x-model="username" />\n      </div>\n      <div class="input-field">\n        <i class="fas fa-lock"></i>\n        <input type="password" placeholder="Password" x-model="password" />\n      </div>\n      <button class="Mdesign AW" @click="handleRegister()">Register</button>\n    </div> -->\n\n    <nav class="navbar navbar-dark bg-dark">\n      <!-- input component for searching movies -->\n      <div class="input-group">\n        <div class="form-outline">\n          <input type="search" id="form1" class="form-control" x-model="searchQuery" /> <!-- Input for movie search-->\n          <!-- <label class="form-label" for="form1"><i class="fas fa-search"></i></label> -->\n        </div>\n        <button class="btn btn-outline-info my-2 my-sm-0" @click="onSearch()">Search</button>\n      </div>\n    </nav>\n\n    <!-- Component -->\n    <div class="search-results">\n      <div class="container">\n        <div class="row">\n          <template x-for="results in searchResults">\n            <div class="col">\n              <div class="card" style="width: 18rem;">\n                <img class="card-img-top" :src="`https://image.tmdb.org/t/p/w500${results.poster_path}`"\n                  alt="Card image cap">\n                <div class="card-body">\n                  <p class="card-text" x-text="results.overview"></p>\n                  <button @click="handleAddToPlaylist(results.id, results.title, results.poster_path)"\n                    class="btn success">Add to playlist</button>\n                </div>\n              </div>\n            </div>\n          </template>\n        </div>\n      </div>\n\n    </div>\n\n  </div>\n\n\n\n  \n</body>\n\n</html>');
+  res.end(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/movie-app/assets/favicon.17e50649.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"><\/script>
+  <title>Vite App</title>
+  <script type="module" crossorigin src="/movie-app/assets/index.85e4fdb9.js"><\/script>
+  <link rel="stylesheet" href="/movie-app/assets/index.e4d5f3dd.css">
+</head>
+
+<body>
+  <div x-data="favMovies" class="container">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" x-show="isNavBar">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Movie api</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#" @click="handleNav('home')">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="handleNav('playlist')">Playlist</a>
+            </li>
+          </ul>
+
+
+          <span class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+              x-model="searchQuery">
+            <button class="btn btn-outline-success" @click="onSearch()">Search</button>
+          </span>
+        </div>
+      </div>
+    </nav>
+
+    <section x-show="isSignedUp" class="container">
+      <section class="container-inside">
+        <div class="left-side">
+          <img src="/movie-app/assets/pexels-pixabay-274937.78208d00.jpg" class="left-img" title="sign up now and save 1200$">
+        </div>
+        <div class="right-side">
+
+          <div class="buttons-container">
+            <button type="button" class="sign-up">Sign Up</button>
+            <button type="button" class="sign-in">Sign In</button>
+          </div>
+
+          <!-- Sign up Form -->
+          <form class="inputs-cont">
+            <label class="input-label hidden">First Name </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your First Name" required x-model="firstName" />
+
+            <label class="input-label hidden">Last Name </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your Last Name" x-model="lastName" />
+
+            <label class="input-label hidden">Username </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your Username" x-model="username" />
+
+            <label class="input-label">Password</label>
+            <i class="fas fa-lock"></i>
+            <input type="password" class="input-take" placeholder="* * * * * * * *" required maxlength="12"
+              x-model="password" />
+
+            <!-- button -->
+            <button class="send" @click="handleRegister()">Register</button>
+          </form>
+
+          <!-- Login Form -->
+          <form class="inputs-cont2">
+            <label class="input-label hidden">Username </label>
+            <i class="fas fa-user"></i>
+            <input type="text" class="input-take" placeholder="Enter your Username" x-model="username" />
+
+            <label class="input-label">Password</label>
+            <i class="fas fa-lock"></i>
+            <input type="password" class="input-take" placeholder="* * * * * * * *" required maxlength="12"
+              x-model="password" />
+
+            <!-- button -->
+            <button class="send" @click="handleLogin()">Sign In</button>
+          </form>
+
+          <!-- end it fast -->
+        </div>
+      </section>
+    </section>
+
+    <!-- Component -->
+
+    <div class="navBar-main-view">
+      <div class="home-content" x-show="navBar">
+        <div x-show="isFound" class="search-results">
+          <div class="container">
+            <div class="row">
+              <template x-for="results in searchResults">
+                <div class="col">
+                  <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" :src="\`https://image.tmdb.org/t/p/w500\${results.poster_path}\`"
+                      alt="Card image cap">
+                    <div class="card-body">
+                      <p class="card-text" x-text="results.overview"></p>
+                      <button @click="handleAddToPlaylist(results.id, results.title, results.poster_path)"
+                        class="btn btn-primary"
+                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Add
+                        to
+                        playlist</button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="playlist-content" x-show="navBar.playlist">
+        <div class="container">
+          <div class="row">
+            <div class="col">
+              <template x-for="playlist in playlist">
+                <div class="card text-bg-success mb-3" style="max-width: 18rem;">
+                  <div class="card-header" x-text="playlist.movie_name">Header</div>
+                  <div class="card-body">
+                    <h5 class="card-title">Success card title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+                      card's content.</p>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"><\/script>
+  
+</body>
+
+</html>`);
 };
 const applyHandler = (server2) => {
   if (Array.isArray(handler.handler)) {

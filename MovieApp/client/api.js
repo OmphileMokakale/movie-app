@@ -5,6 +5,8 @@ import 'dotenv';
 // import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt';
 import { authToken, generateAccessToken } from './authToken';
+import movies from './alpine';
+import movie_data from './movies.json';
 
 
 // const API = require('./api');
@@ -57,30 +59,36 @@ app.post('/api/signup', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    console.log(req.body);
     const userHashedPassword = await db.oneOrNone(`select * from movie_user where username = $1`, [username]);
-    console.log(userHashedPassword);
-    bcrypt.compare(password, userHashedPassword.password, (err, results) => {
-        if (err) return err;
-        if (results) {
 
-            res.json({
-                status: 'success',
-                isLoggedin: true,
-                user: userHashedPassword
-
-            })
-        }
-
-    })
-
+    if(userHashedPassword){
+        bcrypt.compare(password, userHashedPassword.password, (err, results) => {
+            if (err) return err;
+            if (results) {
+    const token = generateAccessToken(username);
+                res.json({
+                    status: 'success',
+                    isLoggedin: true,
+                    user: userHashedPassword,
+                    isFound: true,
+                    token
+                })
+            }
+        })
+    }else{
+        res.json({
+            status: "failure",
+            isLoggedin: false,
+            isFound: false
+        })
+    }
+   
 })
 
 app.get('/api/movie/search/:searchQuery', async (req, res) => {
     const { searchQuery } = req.params; // search input from the client.
     axios.get(`https://api.themoviedb.org/3/search/movie?api_key=1bf9f405d83b93a51712dfe88ebd97f1&query=${searchQuery}`) // fetch the requested movie using the `searchQuery`.
         .then(movieApiResponse => {
-            // console.log(movieApiResponse.data); // display the api response data to the console/terminal.
             res.json( // after a successful search we send the results to the user/client side.
                 {
                     status: 'success',
@@ -92,36 +100,53 @@ app.get('/api/movie/search/:searchQuery', async (req, res) => {
 
 app.get('/api/v1/auth', authToken, async (req, res) => {
     console.log(req.username);
+    console.log(req.isExpired);
     const verifyUser = await db.one('select * from movie_user where username = $1', [req.username])
-    if (verifyUser) {
-        res.json({
-            status: 'success',
-            user: verifyUser,
-            isUser: true
-        })
-    }
     res.json({
-        status: 'failure',
-        isUser: false
-    })
 
+        user: verifyUser,
+        isExpired: req.isExpired
+    })
+    // if(req.isExpired){
+
+    //     res.json({
+    //         status: 'failure',
+    //         isExpired: true
+    //     })
+    // }else{
+    //     const verifyUser = await db.one('select * from movie_user where username = $1', [req.username])
+    //     if (verifyUser) {
+    //         res.json({
+    //             status: 'success',
+    //             user: verifyUser,
+    //             isUser: true,
+    //             isExpired: false
+    //         })
+    //     }
+    //     res.json({
+    //         status: 'failure',
+    //         isUser: false,
+    //         isExpired: false
+    //     })
+
+    // }
 })
 
-app.get('/api/play', function (req, res) {
-    // note that this route just send JSON data to the browser
-    // there is no template
-    res.json({ movies });
-});
+// app.get('/api/play', function (req, res) {
+//     // note that this route just send JSON data to the browser
+//     // there is no template
+//     res.json({ movies });
+// });
 
 // Example: http://localhost:3000/api/v1/add_to_playlist
 app.post("/api/v1/add", async (req, res) => { // Add movie to plalist endpoint.
     const { movieId, movieName, moviePosterUrl } = req.body;
     // const { username } = req.username;
     // const getUser = await db.one("select * from movie_user where username = $1", [username]);
-    // console.log(getUser);
+   
     // if (getUser) {
     await db.none("insert into User_Playlist (user_id, movie_id, movie_name, moviePosterUrl) values ($1,$2, $3, $4)"
-        , [1, movieId, movieName, moviePosterUrl]);
+        , [3, movieId, movieName, moviePosterUrl]);
     res.json({
         status: "success",
         isAdded: true
@@ -133,6 +158,17 @@ app.post("/api/v1/add", async (req, res) => { // Add movie to plalist endpoint.
     // });
     // }
 
+});
+
+app.get("/api/v1/user/playlist",authToken,  async (req, res) => {
+    const { id, firstname, lastname, username } = await db.one("select * from movie_user where username = $1", [req.username]);
+    console.log(id);
+    const userPlaylist = await db.many("select User_Playlist.movie_id, User_Playlist.movie_name, User_Playlist.moviePosterUrl, User_Playlist.user_id from User_Playlist inner join movie_user on movie_user.id = User_Playlist.user_id where User_Playlist.user_id = $1", [id]);
+    console.log(userPlaylist);
+    res.json({
+        status: "success",
+        playlist: userPlaylist,
+    })
 });
 
 export const handler = app;

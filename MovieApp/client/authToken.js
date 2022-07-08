@@ -6,10 +6,12 @@ const authToken = (req, res, next) => {
             let bearer = header.split(':');
             const {username}  = jwt.verify(bearer[1], 'This-is-my-secret-code#1');
             req.username = username;
+            req.isExpired = false;
             next();
         }
     } catch (error) {
-        console.log(error);
+        req.isExpired = true;
+        next();
     }
 }
 

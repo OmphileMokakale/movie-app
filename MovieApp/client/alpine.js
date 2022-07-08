@@ -2,9 +2,9 @@ import axios from 'axios';
 export default function movies() {
   return {
     show: true,
-    isSignedUp: true,
+    isSignedUp: false,
     favMovies: [],
-    isLoggedIn: false,
+    // isLoggedIn: false,
     firstName: '',
     lastName: '',
     username: '',
@@ -13,8 +13,12 @@ export default function movies() {
     userToken: '',
     searchQuery: '', // This will be binded with the input for searching movies in the html using x-model="searchQuery"
     searchResults: [], // This will be used to store the search results from the movie api query.
-
     user: {},
+    isFound: false,
+    navBar: { home: true, playlist: false },
+    playlist: [],
+    isNavBar: false,
+
     async init() {
       const UserToken = JSON.parse(localStorage.getItem("token")) || ""
       console.log("USER_TOKEN ", UserToken);
@@ -24,13 +28,26 @@ export default function movies() {
         headers: { 'Authorization': `bearer:${this.userToken}` }
       }
       if (UserToken !== "") {
-        await (await axios.get()).headers
+        // await (await axios.get()).headers
         await axios.get('/api/v1/auth', config).then(res => {
           console.log(res.data);
-          this.user = res.data.user;
+          if(!res.data.isExpired){
+            this.user = res.data.user;
+            this.isNavBar = true
+            
+          }else{
+            console.log('Token Expired');
+          }
+          // if(res.data.isExpired){
+          //   this.isSignedUp = true;
+          // }else{
+          //   this.user = res.data.user;
+          // }
         })
       } else {
         console.log("REQUEST FOR TOKEN ");
+        this.isSignedUp = true;
+
       }
 
       //   if (UserToken === "") {
@@ -47,11 +64,15 @@ export default function movies() {
         password: this.password
       }).then(res => {
         console.log(res.data);
-        if (res.data.isLoggedin) {
-          this.isLoggedIn = false;
+        if (res.data.isFound) {
+          this.isSignedUp = false;
           this.show = true;
+          this.isNavBar = true;
           console.log(res.data);
           this.userData = res.data.user
+          localStorage.setItem('token', JSON.stringify(res.data.token));
+        }else{
+          console.log('No account found');
         }
       })
       console.log(this.userData);
@@ -79,6 +100,7 @@ export default function movies() {
         .then(res => {
           console.log(res.data.searchResults);
           this.searchResults = res.data.searchResults;
+          this.isFound = true;
         });
     },
 
@@ -93,6 +115,26 @@ export default function movies() {
       }, config).then(res => {
         console.log(res.data);
       })
+    },
+
+    async handleNav(name) {
+      console.log('nav');
+      const config = {
+        headers: { 'Authorization': `bearer:${this.userToken}` }
+      }
+
+      if (name.includes('home')) this.navBar.home = true, this.navBar.playlist = false;
+      else if (name.includes('playlist')) {
+        await axios.get("/api/v1/user/playlist", config)
+          .then(res => {
+            console.log(res.data.playlist);
+            this.playlist = res.data.playlist;
+          })
+        this.navBar.playlist = true;
+        this.navBar.home = false;
+      }
+
+      console.log(this.navBar);
     }
   }
 }
