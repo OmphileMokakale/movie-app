@@ -6,7 +6,7 @@ window.Alpine = Alpine
 Alpine.data('favMovies', movies);
 Alpine.start()
 
-console.log('hey there');
+
 // document.querySelector('#app').innerHTML = "I 💚 Alpine JS!"
 
 var signIn = document.querySelector(".sign-in"),

@@ -27,8 +27,8 @@ const db = pgp('postgres://pgadmin:pg123@localhost:5432/movie_app');
 // const movies = require('./movies.json');
 
 
-const DATABASE_URL = process.env.DATABASE_URL;
-// console.log(process.env.DATABASE_URL);
+const DATABASE_URL = process.env.DATABASE_URL || "postgres://pgadmin:pg123@localhost:5432/movie_app";
+// (process.env.DATABASE_URL);
 // const pgp = PgPromise({});
 
 //for the database to show on heroku
@@ -58,8 +58,9 @@ app.post('/api/signup', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
+    
     const { username, password } = req.body;
-    const userHashedPassword = await db.oneOrNone(`select * from movie_user where username = $1`, [username]);
+    const userHashedPassword = await db.oneOrNone(`select * from movie_user where username = $1`,[username]);
 
     if(userHashedPassword){
         bcrypt.compare(password, userHashedPassword.password, (err, results) => {
@@ -100,13 +101,14 @@ app.get('/api/movie/search/:searchQuery', async (req, res) => {
 
 app.get('/api/v1/auth', authToken, async (req, res) => {
     console.log(req.username);
-    console.log(req.isExpired);
     const verifyUser = await db.one('select * from movie_user where username = $1', [req.username])
     res.json({
 
         user: verifyUser,
         isExpired: req.isExpired
     })
+
+    
     // if(req.isExpired){
 
     //     res.json({
@@ -132,11 +134,6 @@ app.get('/api/v1/auth', authToken, async (req, res) => {
     // }
 })
 
-// app.get('/api/play', function (req, res) {
-//     // note that this route just send JSON data to the browser
-//     // there is no template
-//     res.json({ movies });
-// });
 
 // Example: http://localhost:3000/api/v1/add_to_playlist
 app.post("/api/v1/add", async (req, res) => { // Add movie to plalist endpoint.
@@ -162,9 +159,9 @@ app.post("/api/v1/add", async (req, res) => { // Add movie to plalist endpoint.
 
 app.get("/api/v1/user/playlist",authToken,  async (req, res) => {
     const { id, firstname, lastname, username } = await db.one("select * from movie_user where username = $1", [req.username]);
-    console.log(id);
+    (id);
     const userPlaylist = await db.many("select User_Playlist.movie_id, User_Playlist.movie_name, User_Playlist.moviePosterUrl, User_Playlist.user_id from User_Playlist inner join movie_user on movie_user.id = User_Playlist.user_id where User_Playlist.user_id = $1", [id]);
-    console.log(userPlaylist);
+    (userPlaylist);
     res.json({
         status: "success",
         playlist: userPlaylist,
