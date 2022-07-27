@@ -12,11 +12,11 @@
 </head>
 
 <body>
-  <div x-data="favMovies" class="container">
+  <div x-data="favMovies" class="">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" x-show="isNavBar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" x-show="isNavBar">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Movie api</a>
+        <a class="navbar-brand" href="#">Welcome <span x-text="user.username"></span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -37,6 +37,7 @@
               x-model="searchQuery">
             <button class="btn btn-outline-success" @click="onSearch()">Search</button>
           </span>
+          <button class="btn btn-outline-danger" @click="onSearch()">Log out</button>
         </div>
       </div>
     </nav>
@@ -54,7 +55,7 @@
           </div>
 
           <!-- Sign up Form -->
-          <form class="inputs-cont">
+          <div class="inputs-cont">
             <label class="input-label hidden">First Name </label>
             <i class="fas fa-user"></i>
             <input type="text" class="input-take" placeholder="Enter your First Name" required x-model="firstName" />
@@ -74,7 +75,7 @@
 
             <!-- button -->
             <button class="send" @click="handleRegister()">Register</button>
-          </form>
+          </div>
 
           <!-- Login Form -->
           <form class="inputs-cont2">
@@ -96,52 +97,88 @@
       </section>
     </section>
 
+
+
+
     <!-- Component -->
 
     <div class="navBar-main-view">
-      <div class="home-content" x-show="navBar">
-        <div x-show="isFound" class="search-results">
+      <div class="home-content" x-show="navBar.home">
+        <div x-show="isFound">
           <div class="container">
-            <div class="row">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
               <template x-for="results in searchResults">
                 <div class="col">
-                  <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" :src="`https://image.tmdb.org/t/p/w500${results.poster_path}`"
-                      alt="Card image cap">
-                    <div class="card-body">
-                      <p class="card-text" x-text="results.overview"></p>
-                      <button @click="handleAddToPlaylist(results.id, results.title, results.poster_path)"
-                        class="btn btn-primary"
-                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Add
-                        to
-                        playlist</button>
+                  <div class="card text-bg-info mb-3" style="max-width: 540px;">
+                    <div class="row g-0">
+                      <div class="col-md-4">
+                        <img :src="`https://image.tmdb.org/t/p/w500${results.poster_path}`"
+                          class="img-fluid rounded-start" alt="...">
+                      </div>
+                      <div class="col-md-8">
+                        <div class="card-body">
+                          <h5 class="card-title" x-text="results.original_title">Card title</h5>
+                          <p>Release Date: <strong x-text="results.release_date"></strong></p>
+                          <p>Language: <strong x-text="results.original_language"></strong></p>
+                          <button @click="handleAddToPlaylist(results.id, results.title, results.poster_path)"
+                            class="btn btn-success"
+                            style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Add
+                            to
+                            playlist
+
+                            <svg style="color: rgb(255, 255, 255);" xmlns="http://www.w3.org/2000/svg" width="16"
+                              height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                              <path
+                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                            </svg>
+                          </button>
+                          <!-- <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </template>
             </div>
           </div>
-
         </div>
-
       </div>
+
+
       <div class="playlist-content" x-show="navBar.playlist">
         <div class="container">
-          <div class="row">
-            <div class="col">
-              <template x-for="playlist in playlist">
-                <div class="card text-bg-success mb-3" style="max-width: 18rem;">
-                  <div class="card-header" x-text="playlist.movie_name">Header</div>
-                  <div class="card-body">
-                    <h5 class="card-title">Success card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                      card's content.</p>
+          <h1 x-show="playlist.length <= 0">No movies in your playlist yet!</h1>
+          <div class="row row-cols-1 row-cols-md-4 g-4">
+            <template x-for="playlist in playlist">
+
+              <div class="col">
+                <div class="card text-bg-info mb-3" style="max-width: 540px;">
+                  <div class="row g-0">
+                    <div class="col-md-4">
+                      <img :src="`https://image.tmdb.org/t/p/w500${playlist.movieposterurl}`"
+                        class="img-fluid rounded-start" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title" x-text="playlist.movie_name">Card title</h5>
+                        <button @click="onRemove(playlist.movie_id)" class="btn btn-danger"
+                          style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Remove
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                            <path
+                              d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                          </svg>
+                        </button>
+
+
+
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </template>
-            </div>
+              </div>
+            </template>
           </div>
-
         </div>
       </div>
     </div>

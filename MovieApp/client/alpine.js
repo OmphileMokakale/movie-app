@@ -21,7 +21,6 @@ export default function movies() {
 
     async init() {
       const UserToken = JSON.parse(localStorage.getItem("token")) || ""
-      console.log("USER_TOKEN ", UserToken);
       this.userToken = UserToken;
 
       const config = {
@@ -29,37 +28,24 @@ export default function movies() {
       }
       if (UserToken !== "") {
         // await (await axios.get()).headers
-        await axios.get('/api/v1/auth', config).then(res => {
-          console.log(res.data);
-          if(!res.data.isExpired){
+        await axios.get('https://movie-app-vitejs.herokuapp.com/api/v1/auth', config).then(res => {
+          if (!res.data.isExpired) {
             this.user = res.data.user;
-            this.isNavBar = true
-            
-          }else{
+            this.isNavBar = true;
+            this.user = res.data.user
+
+          } else {
             console.log('Token Expired');
           }
-          // if(res.data.isExpired){
-          //   this.isSignedUp = true;
-          // }else{
-          //   this.user = res.data.user;
-          // }
         })
       } else {
         console.log("REQUEST FOR TOKEN ");
         this.isSignedUp = true;
-
       }
-
-      //   if (UserToken === "") {
-
-      //     // this.isLoggedIn = true;
-      //   }
-
-
     },
 
     async handleLogin() {
-      await axios.post('/api/login', {
+      await axios.post('https://movie-app-vitejs.herokuapp.com/api/login', {
         username: this.username,
         password: this.password
       }).then(res => {
@@ -71,7 +57,7 @@ export default function movies() {
           console.log(res.data);
           this.userData = res.data.user
           localStorage.setItem('token', JSON.stringify(res.data.token));
-        }else{
+        } else {
           console.log('No account found');
         }
       })
@@ -83,8 +69,8 @@ export default function movies() {
       console.log(this.username);
       console.log("REQUEST_SENT ");
 
-
-      await axios.post('/api/signup', {
+      // fetch("https://movie-app-vitejs.herokuapp.com/api/signup")
+      axios.post('https://movie-app-vitejs.herokuapp.com/api/signup', {
         firstName: this.firstName,
         lastName: this.lastName,
         username: this.username,
@@ -96,11 +82,13 @@ export default function movies() {
     },
 
     async onSearch() { // This method handles the search for movie feature.
-      await axios.get(`/api/movie/search/${this.searchQuery}`)
+      await axios.get(`https://movie-app-vitejs.herokuapp.com/api/movie/search/${this.searchQuery}`)
         .then(res => {
           console.log(res.data.searchResults);
           this.searchResults = res.data.searchResults;
           this.isFound = true;
+          this.navBar.playlist = false;
+          this.navBar.home = true;
         });
     },
 
@@ -108,7 +96,7 @@ export default function movies() {
       const config = {
         headers: { 'Authorization': `bearer:${this.userToken}` }
       }
-      await axios.post("/api/v1/add", {
+      await axios.post("https://movie-app-vitejs.herokuapp.com/api/v1/add", {
         movieId: id,
         movieName: title,
         moviePosterUrl: imgUrl,
@@ -118,23 +106,26 @@ export default function movies() {
     },
 
     async handleNav(name) {
-      console.log('nav');
       const config = {
         headers: { 'Authorization': `bearer:${this.userToken}` }
       }
 
       if (name.includes('home')) this.navBar.home = true, this.navBar.playlist = false;
       else if (name.includes('playlist')) {
-        await axios.get("/api/v1/user/playlist", config)
+        await axios.get("https://movie-app-vitejs.herokuapp.com/api/v1/user/playlist", config)
           .then(res => {
             console.log(res.data.playlist);
             this.playlist = res.data.playlist;
+            this.navBar.playlist = true;
+            this.navBar.home = false;
           })
-        this.navBar.playlist = true;
-        this.navBar.home = false;
       }
 
       console.log(this.navBar);
-    }
+    },
+
+    onRemove(movieId) {
+
+    },
   }
 }
